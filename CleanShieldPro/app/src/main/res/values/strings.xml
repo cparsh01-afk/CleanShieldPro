@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CleanShield Pro</string>
+    <string name="protection_on">Protection: ON</string>
+    <string name="protection_off">Protection: OFF</string>
+</resources>

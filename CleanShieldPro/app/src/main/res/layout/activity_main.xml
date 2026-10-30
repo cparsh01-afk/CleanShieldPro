@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="#0F172A">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CleanShield Pro"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phase 3 • Advanced Protection"
+        android:textSize="14sp"
+        android:textColor="#94A3B8"
+        android:layout_marginBottom="40dp" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Protection: OFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#EF4444"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/blockedCountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Blocked: 0"
+        android:textSize="18sp"
+        android:textColor="#E2E8F0"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/dataSavedText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Data saved: 0 B"
+        android:textSize="18sp"
+        android:textColor="#E2E8F0"
+        android:layout_marginBottom="40dp" />
+
+    <Button
+        android:id="@+id/toggleButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Start Protection"
+        android:textSize="16sp"
+        android:backgroundTint="#3B82F6"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Settings"
+        android:textSize="16sp"
+        android:backgroundTint="#1E293B"
+        android:textColor="#E2E8F0" />
+
+</LinearLayout>

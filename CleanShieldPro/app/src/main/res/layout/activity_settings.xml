@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F172A">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Protection Options"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp" />
+
+        <Switch
+            android:id="@+id/switchBlockAds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block Ads"
+            android:textColor="#E2E8F0"
+            android:padding="12dp" />
+
+        <Switch
+            android:id="@+id/switchBlockTrackers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Block Trackers"
+            android:textColor="#E2E8F0"
+            android:padding="12dp" />
+
+        <Switch
+            android:id="@+id/switchAggressive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aggressive Mode"
+            android:textColor="#E2E8F0"
+            android:padding="12dp" />
+
+        <Switch
+            android:id="@+id/switchBatterySaver"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Battery Saver Mode"
+            android:textColor="#E2E8F0"
+            android:padding="12dp" />
+
+        <Switch
+            android:id="@+id/switchStartOnBoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start on Boot"
+            android:textColor="#E2E8F0"
+            android:padding="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note: Aggressive mode may break some websites or apps. Use whitelist if needed."
+            android:textColor="#94A3B8"
+            android:textSize="13sp"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>
