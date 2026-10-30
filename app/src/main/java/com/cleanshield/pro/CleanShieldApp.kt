@@ -9,7 +9,6 @@ import com.cleanshield.pro.data.StatsRepository
 import com.cleanshield.pro.data.SettingsRepository
 
 class CleanShieldApp : Application() {
-
     lateinit var filterRepository: FilterRepository
         private set
     lateinit var statsRepository: StatsRepository
@@ -20,11 +19,9 @@ class CleanShieldApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-
         filterRepository = FilterRepository(this)
         statsRepository = StatsRepository(this)
         settingsRepository = SettingsRepository(this)
-
         createNotificationChannels()
     }
 
@@ -32,18 +29,17 @@ class CleanShieldApp : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "CleanShield Protection",
+                "Parsh CleanShieldPro protection",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Shows when ad & tracker protection is active"
+                description = "Shows the real state of local DNS protection"
             }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
     companion object {
-        const val CHANNEL_ID = "cleanshield_protection"
+        const val CHANNEL_ID = "parsh_cleanshield_protection"
         lateinit var instance: CleanShieldApp
             private set
     }

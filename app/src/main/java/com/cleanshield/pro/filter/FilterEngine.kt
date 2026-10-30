@@ -2,16 +2,15 @@ package com.cleanshield.pro.filter
 
 import android.util.Log
 import com.cleanshield.pro.data.FilterRepository
+import java.net.IDN
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Phase 3 Filter Engine
- * Decides whether a domain/request should be blocked.
- * Supports multiple lists + custom rules + whitelist.
+ * In-memory domain filter. A whitelist entry always overrides a block rule.
+ * Matching is exact or on a DNS label boundary (not an arbitrary substring).
  */
 class FilterEngine(private val repository: FilterRepository) {
-
-    // In-memory set for fast lookups
     private val blockedDomains = ConcurrentHashMap.newKeySet<String>()
     private val whitelistedDomains = ConcurrentHashMap.newKeySet<String>()
     private val customBlocked = ConcurrentHashMap.newKeySet<String>()
@@ -20,70 +19,61 @@ class FilterEngine(private val repository: FilterRepository) {
         loadFilters()
     }
 
+    @Synchronized
     fun loadFilters() {
         blockedDomains.clear()
         whitelistedDomains.clear()
         customBlocked.clear()
-
-        // Load built-in + downloaded lists
-        repository.getBlockedDomains().forEach { blockedDomains.add(it.lowercase()) }
-        repository.getWhitelistedDomains().forEach { whitelistedDomains.add(it.lowercase()) }
-        repository.getCustomBlocked().forEach { customBlocked.add(it.lowercase()) }
-
-        Log.i(TAG, "Loaded ${blockedDomains.size} blocked domains, " +
-                "${whitelistedDomains.size} whitelist, ${customBlocked.size} custom")
+        repository.getBlockedDomains().mapNotNull(::normalizeDomain).forEach(blockedDomains::add)
+        repository.getWhitelistedDomains().mapNotNull(::normalizeDomain).forEach(whitelistedDomains::add)
+        repository.getCustomBlocked().mapNotNull(::normalizeDomain).forEach(customBlocked::add)
+        Log.i(TAG, "Loaded ${blockedDomains.size} block rules, ${whitelistedDomains.size} whitelist rules")
     }
 
-    /**
-     * Main decision function
-     * Returns true if the domain should be BLOCKED
-     */
     fun shouldBlock(host: String): Boolean {
-        val domain = host.lowercase().removePrefix("www.")
+        val domain = normalizeDomain(host) ?: return false
+        if (matchesDomainOrParent(whitelistedDomains, domain)) return false
+        return matchesDomainOrParent(customBlocked, domain) ||
+            matchesDomainOrParent(blockedDomains, domain)
+    }
 
-        // Whitelist always wins
-        if (isWhitelisted(domain)) return false
+    @Synchronized
+    fun addCustomBlock(domain: String): Boolean {
+        val normalized = normalizeDomain(domain) ?: return false
+        customBlocked.add(normalized)
+        repository.addCustomBlocked(normalized)
+        return true
+    }
 
-        // Custom user blocks
-        if (customBlocked.contains(domain) || matchesAny(customBlocked, domain)) {
-            return true
+    @Synchronized
+    fun addWhitelist(domain: String): Boolean {
+        val normalized = normalizeDomain(domain) ?: return false
+        whitelistedDomains.add(normalized)
+        repository.addWhitelist(normalized)
+        return true
+    }
+
+    fun reload() = loadFilters()
+
+    private fun matchesDomainOrParent(rules: Set<String>, domain: String): Boolean {
+        var candidate = domain
+        while (true) {
+            if (rules.contains(candidate)) return true
+            val dot = candidate.indexOf('.')
+            if (dot < 0) return false
+            candidate = candidate.substring(dot + 1)
         }
+    }
 
-        // Main filter lists
-        if (blockedDomains.contains(domain) || matchesAny(blockedDomains, domain)) {
-            return true
+    private fun normalizeDomain(input: String): String? {
+        val trimmed = input.trim().trimEnd('.').lowercase(Locale.ROOT)
+        if (trimmed.isEmpty() || trimmed.contains('/') || trimmed.contains(':') || trimmed.contains('*')) return null
+        return try {
+            val ascii = IDN.toASCII(trimmed, IDN.USE_STD3_ASCII_RULES).lowercase(Locale.ROOT)
+            if (ascii.length > 253 || ascii.split('.').any { it.isEmpty() || it.length > 63 }) null else ascii
+        } catch (_: IllegalArgumentException) {
+            null
         }
-
-        return false
-    }
-
-    private fun isWhitelisted(domain: String): Boolean {
-        return whitelistedDomains.contains(domain) || matchesAny(whitelistedDomains, domain)
-    }
-
-    private fun matchesAny(set: Set<String>, domain: String): Boolean {
-        // Simple suffix matching for subdomains
-        // e.g. blocking "doubleclick.net" also blocks "ad.doubleclick.net"
-        for (entry in set) {
-            if (domain == entry || domain.endsWith(".$entry")) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun addCustomBlock(domain: String) {
-        customBlocked.add(domain.lowercase())
-        repository.addCustomBlocked(domain)
-    }
-
-    fun addWhitelist(domain: String) {
-        whitelistedDomains.add(domain.lowercase())
-        repository.addWhitelist(domain)
-    }
-
-    fun reload() {
-        loadFilters()
     }
 
     companion object {

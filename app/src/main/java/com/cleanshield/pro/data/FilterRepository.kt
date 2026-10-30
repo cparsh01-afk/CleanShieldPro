@@ -2,16 +2,16 @@ package com.cleanshield.pro.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
-class FilterRepository(private val context: Context) {
-
+/**
+ * Local filter rules. No browsing history or DNS payloads are uploaded.
+ * Remote-list synchronization is intentionally not advertised until implemented.
+ */
+class FilterRepository(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("cleanshield_filters", Context.MODE_PRIVATE)
 
-    // Built-in starter list (Phase 3 will download full lists)
-    private val builtInBlocked = listOf(
+    private val builtInBlocked = setOf(
         "doubleclick.net",
         "googleadservices.com",
         "googlesyndication.com",
@@ -21,7 +21,6 @@ class FilterRepository(private val context: Context) {
         "adsystem.com",
         "advertising.com",
         "adnxs.com",
-        "facebook.com/tr",
         "connect.facebook.net",
         "scorecardresearch.com",
         "quantserve.com",
@@ -37,7 +36,6 @@ class FilterRepository(private val context: Context) {
         "admob.com",
         "adsrvr.org",
         "adtech.de",
-        "advertising.com",
         "app-adforce.jp",
         "bidswitch.net",
         "casalemedia.com",
@@ -75,42 +73,41 @@ class FilterRepository(private val context: Context) {
     )
 
     fun getBlockedDomains(): Set<String> {
-        val custom = prefs.getStringSet("extra_blocked", emptySet()) ?: emptySet()
-        return (builtInBlocked + custom).toSet()
+        val custom = prefs.getStringSet(KEY_EXTRA_BLOCKED, emptySet()) ?: emptySet()
+        return builtInBlocked + custom
     }
 
-    fun getWhitelistedDomains(): Set<String> {
-        return prefs.getStringSet("whitelist", emptySet()) ?: emptySet()
-    }
+    fun getWhitelistedDomains(): Set<String> =
+        prefs.getStringSet(KEY_WHITELIST, emptySet())?.toSet() ?: emptySet()
 
-    fun getCustomBlocked(): Set<String> {
-        return prefs.getStringSet("custom_blocked", emptySet()) ?: emptySet()
-    }
+    fun getCustomBlocked(): Set<String> =
+        prefs.getStringSet(KEY_CUSTOM_BLOCKED, emptySet())?.toSet() ?: emptySet()
 
     fun addCustomBlocked(domain: String) {
-        val current = getCustomBlocked().toMutableSet()
-        current.add(domain.lowercase())
-        prefs.edit().putStringSet("custom_blocked", current).apply()
+        updateSet(KEY_CUSTOM_BLOCKED) { it.add(domain.lowercase()) }
+    }
+
+    fun removeCustomBlocked(domain: String) {
+        updateSet(KEY_CUSTOM_BLOCKED) { it.remove(domain.lowercase()) }
     }
 
     fun addWhitelist(domain: String) {
-        val current = getWhitelistedDomains().toMutableSet()
-        current.add(domain.lowercase())
-        prefs.edit().putStringSet("whitelist", current).apply()
+        updateSet(KEY_WHITELIST) { it.add(domain.lowercase()) }
     }
 
     fun removeWhitelist(domain: String) {
-        val current = getWhitelistedDomains().toMutableSet()
-        current.remove(domain.lowercase())
-        prefs.edit().putStringSet("whitelist", current).apply()
+        updateSet(KEY_WHITELIST) { it.remove(domain.lowercase()) }
     }
 
-    // Future Phase 3: download full EasyList / EasyPrivacy here
-    fun updateRemoteLists() {
-        // Placeholder for downloading and parsing filter lists
-        // In full production this would use OkHttp to fetch:
-        // https://easylist.to/easylist/easylist.txt
-        // https://easylist.to/easylist/easyprivacy.txt
-        // Then parse and store domains.
+    private fun updateSet(key: String, change: (MutableSet<String>) -> Unit) {
+        val current = (prefs.getStringSet(key, emptySet()) ?: emptySet()).toMutableSet()
+        change(current)
+        prefs.edit().putStringSet(key, current).apply()
+    }
+
+    companion object {
+        private const val KEY_EXTRA_BLOCKED = "extra_blocked"
+        private const val KEY_WHITELIST = "whitelist"
+        private const val KEY_CUSTOM_BLOCKED = "custom_blocked"
     }
 }

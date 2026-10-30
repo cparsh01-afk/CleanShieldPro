@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A">
+    android:background="@color/surface_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,61 +11,83 @@
         android:padding="20dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Protection Options"
-            android:textSize="18sp"
+            android:text="Encrypted DNS"
+            android:textColor="@color/text_primary"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="8dp" />
 
-        <Switch
-            android:id="@+id/switchBlockAds"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Block Ads"
-            android:textColor="#E2E8F0"
-            android:padding="12dp" />
+            android:text="Choose the HTTPS resolver used for allowed DNS queries. TLS certificate verification remains enabled."
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:layout_marginBottom="18dp" />
 
-        <Switch
-            android:id="@+id/switchBlockTrackers"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Block Trackers"
-            android:textColor="#E2E8F0"
-            android:padding="12dp" />
+            android:text="DNS provider"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-        <Switch
-            android:id="@+id/switchAggressive"
+        <Spinner
+            android:id="@+id/dohProviderSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:backgroundTint="@color/accent_cyan" />
+
+        <TextView
+            android:id="@+id/customEndpointLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Aggressive Mode"
-            android:textColor="#E2E8F0"
-            android:padding="12dp" />
+            android:text="Custom HTTPS endpoint"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
 
-        <Switch
-            android:id="@+id/switchBatterySaver"
+        <EditText
+            android:id="@+id/customDohEndpoint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Battery Saver Mode"
-            android:textColor="#E2E8F0"
-            android:padding="12dp" />
+            android:hint="https://resolver.example/dns-query"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Startup options"
+            android:textColor="@color/accent_cyan"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="8dp" />
 
         <Switch
             android:id="@+id/switchStartOnBoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Start on Boot"
-            android:textColor="#E2E8F0"
-            android:padding="12dp" />
+            android:text="Request protection after device boot"
+            android:textColor="@color/text_primary"
+            android:padding="10dp" />
 
-        <TextView
+        <Button
+            android:id="@+id/saveSettingsButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Note: Aggressive mode may break some websites or apps. Use whitelist if needed."
-            android:textColor="#94A3B8"
-            android:textSize="13sp"
-            android:layout_marginTop="24dp" />
-
+            android:layout_height="54dp"
+            android:text="Save DNS Settings"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/accent_blue"
+            android:layout_marginTop="26dp" />
     </LinearLayout>
 </ScrollView>

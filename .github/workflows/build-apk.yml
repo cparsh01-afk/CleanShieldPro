@@ -1,8 +1,8 @@
-﻿name: Build Clean Shield Pro APK
+name: Build Parsh CleanShieldPro APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
@@ -11,9 +11,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout code
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -22,7 +23,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Android SDK
+      - name: Set up Android SDK 34
         uses: android-actions/setup-android@v3
         with:
           accept-android-sdk-licenses: true
@@ -33,19 +34,29 @@ jobs:
         with:
           gradle-version: '8.2'
 
-      - name: Generate Gradle Wrapper if missing
+      - name: Generate Gradle wrapper if absent
         run: |
           if [ ! -f "./gradlew" ]; then
             gradle wrapper --gradle-version 8.2
           fi
           chmod +x ./gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Validate patch formatting
+        run: git diff --check
 
-      - name: Upload APK
+      - name: Run DNS codec unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest --stacktrace
+
+      - name: Build debug APK
+        run: ./gradlew --no-daemon assembleDebug --stacktrace
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk Parsh-CleanShieldPro.apk
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CleanShieldPro-debug
-          path: app/build/outputs/apk/debug/*.apk
+          name: Parsh-CleanShieldPro
+          path: Parsh-CleanShieldPro.apk
           if-no-files-found: error
+          retention-days: 14

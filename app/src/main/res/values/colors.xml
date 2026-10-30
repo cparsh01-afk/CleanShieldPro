@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="surface_background">#07111F</color>
+    <color name="surface_card">#101F31</color>
+    <color name="card_divider">#263A50</color>
+    <color name="text_primary">#F4F8FC</color>
+    <color name="text_secondary">#9DB0C4</color>
+    <color name="accent_blue">#1677E8</color>
+    <color name="accent_cyan">#35D4E8</color>
+    <color name="button_secondary">#1C3047</color>
+    <color name="status_good">#48D597</color>
+    <color name="status_bad">#FF6B78</color>
+</resources>

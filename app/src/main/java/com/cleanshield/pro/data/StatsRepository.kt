@@ -3,38 +3,48 @@ package com.cleanshield.pro.data
 import android.content.Context
 import android.content.SharedPreferences
 
+/** Stores aggregate counters only; DNS names and query contents are not persisted. */
 class StatsRepository(context: Context) {
-
     private val prefs: SharedPreferences =
         context.getSharedPreferences("cleanshield_stats", Context.MODE_PRIVATE)
 
-    fun incrementBlocked() {
-        val current = prefs.getLong("blocked_count", 0L)
-        prefs.edit().putLong("blocked_count", current + 1).apply()
+    fun recordQuery() = increment(KEY_QUERIES)
+    fun recordBlocked() {
+        increment(KEY_QUERIES)
+        increment(KEY_BLOCKED)
     }
+    fun recordResolverFailure() = increment(KEY_FAILURES)
 
-    fun getBlockedCount(): Long = prefs.getLong("blocked_count", 0L)
+    fun getBlockedCount(): Long = prefs.getLong(KEY_BLOCKED, 0L)
+    fun getQueryCount(): Long = prefs.getLong(KEY_QUERIES, 0L)
+    fun getResolverFailureCount(): Long = prefs.getLong(KEY_FAILURES, 0L)
 
-    fun addDataSaved(bytes: Long) {
-        val current = prefs.getLong("data_saved", 0L)
-        prefs.edit().putLong("data_saved", current + bytes).apply()
-    }
+    @Deprecated("Data savings are not measured by DNS blocking")
+    fun addDataSaved(bytes: Long) = Unit
 
-    fun getDataSaved(): Long = prefs.getLong("data_saved", 0L)
+    @Deprecated("Data savings are not measured by DNS blocking")
+    fun getDataSaved(): Long = 0L
+
+    @Deprecated("Data savings are not measured by DNS blocking")
+    fun formatDataSaved(): String = "Not measured"
 
     fun resetStats() {
         prefs.edit()
-            .putLong("blocked_count", 0L)
-            .putLong("data_saved", 0L)
+            .putLong(KEY_BLOCKED, 0L)
+            .putLong(KEY_QUERIES, 0L)
+            .putLong(KEY_FAILURES, 0L)
             .apply()
     }
 
-    fun formatDataSaved(): String {
-        val bytes = getDataSaved()
-        return when {
-            bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "%.1f KB".format(bytes / 1024.0)
-            else -> "%.2f MB".format(bytes / (1024.0 * 1024.0))
+    private fun increment(key: String) {
+        synchronized(this) {
+            prefs.edit().putLong(key, prefs.getLong(key, 0L) + 1L).apply()
         }
+    }
+
+    companion object {
+        private const val KEY_BLOCKED = "blocked_count"
+        private const val KEY_QUERIES = "query_count"
+        private const val KEY_FAILURES = "resolver_failures"
     }
 }
