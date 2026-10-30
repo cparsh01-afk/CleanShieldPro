@@ -1,0 +1,29 @@
+Parsh CleanShieldPro — DoH bootstrap DNS hotfix
+
+Purpose
+-------
+Prevents a DNS recursion loop when OkHttp resolves the Cloudflare or Quad9
+DoH hostname while the local DNS-only VPN is active.
+
+Files in this patch
+-------------------
+1. app/src/main/java/com/cleanshield/pro/vpn/DnsOverHttpsResolver.kt
+2. app/src/main/java/com/cleanshield/pro/vpn/DohBootstrapDns.kt (new)
+3. app/src/test/java/com/cleanshield/pro/vpn/DohBootstrapDnsTest.kt (new)
+
+Behavior
+--------
+- cloudflare-dns.com uses bootstrap IPs 1.1.1.1 and 1.0.0.1.
+- dns.quad9.net uses bootstrap IPs 9.9.9.9 and 149.112.112.112.
+- TLS hostname verification remains based on the HTTPS URL hostname.
+- Numeric IP-literal custom endpoints are accepted.
+- Unknown custom hostnames fail explicitly rather than calling system DNS
+  and potentially recursing into the VPN. A future settings screen should
+  let the user configure an explicit bootstrap IP for custom providers.
+
+Apply
+-----
+Extract this ZIP into the existing project root and allow overwrite of the
+single existing resolver file. Do not overwrite the rest of the project.
+Then run the GitHub Actions workflow; do not claim runtime verification until
+it has passed on a real Android device.

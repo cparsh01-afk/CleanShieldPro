@@ -1,0 +1,35 @@
+Parsh CleanShieldPro — Upgrade 1: DNS reliability hotfix
+
+This patch addresses the observed failure mode first: the DoH client can try to
+resolve its own HTTPS provider hostname through Android's DNS resolver while
+the DNS-only VPN is active. The patch supplies pinned bootstrap IPs for the
+built-in Cloudflare and Quad9 providers, while keeping HTTPS/TLS hostname
+verification enabled.
+
+Included:
+- Protected DoH sockets (existing behavior retained)
+- Bootstrap DNS for Cloudflare and Quad9
+- Explicit rejection of custom DoH hostnames without a safe bootstrap mapping
+- DNS response validation and bounded response size (existing behavior retained)
+- Unit tests for provider bootstrap resolution
+
+Important limits (not claimed as implemented by this patch):
+- Current packet engine is IPv4/UDP DNS only; IPv6 DNS and DNS-over-TCP need a
+  separate packet-engine upgrade.
+- Apps using their own encrypted DNS or hard-coded IP addresses may bypass
+  DNS filtering.
+- Ad blocking is domain-based and cannot guarantee removal of YouTube or all
+  in-app ads.
+- No device test is implied. Build success and real-device behavior are separate.
+
+Next engineering stages:
+1. Verify this resolver hotfix on the POCO X3 Pro and confirm resolver failures
+   remain at zero during ordinary browsing.
+2. Expand DNS packet handling with IPv6 and DNS-over-TCP or explicitly prevent
+   unsupported traffic from silently failing.
+3. Add robust lifecycle/state reporting, provider health checks, and settings
+   validation.
+4. Improve filter-list management, allow/deny rules, import/export, and update
+   integrity.
+5. Add privacy-preserving diagnostics and accurate per-category statistics.
+6. Add automated packet/parser tests and release signing/update safeguards.

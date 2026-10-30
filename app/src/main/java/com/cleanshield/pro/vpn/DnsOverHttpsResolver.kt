@@ -4,6 +4,7 @@ import android.net.VpnService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.Dns
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
@@ -24,6 +25,9 @@ class DnsOverHttpsResolver(
 ) : AutoCloseable {
 
     private val client = OkHttpClient.Builder()
+        // Never use the VPN's own DNS route to resolve the DoH server hostname.
+        // This avoids a resolver recursion loop while the VPN is active.
+        .dns(DohBootstrapDns)
         .socketFactory(ProtectedSocketFactory(vpnService))
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(8, TimeUnit.SECONDS)
